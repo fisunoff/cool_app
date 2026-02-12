@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
               primary: false,
               shrinkWrap: true,
               itemCount: 10,
-              itemBuilder: (_, __) => ContentCard(),
+              itemBuilder: (context, index) => ContentCard(index: index),
               separatorBuilder: (_, __) => 16.ph,
             ),
           ],
