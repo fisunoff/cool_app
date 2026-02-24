@@ -1,15 +1,14 @@
-import 'package:cool_app/lib/router/router.dart';
-import 'package:cool_app/lib/theme/theme_data.dart';
+import 'app/app.dart';
 import 'package:flutter/material.dart';
 
-class AppCool extends StatelessWidget {
-  const AppCool({super.key});
-
+class AppName extends StatelessWidget {
+  const AppName({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Мое крутое приложение',
+      title: 'Прогноз погоды',
       theme: AppTheme.lightTheme,
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
