@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'temperature_content.dart';
+import '../features/home/temperature_detail_screen.dart';
 
 class ContentCard extends StatelessWidget {
   final TemperatureContent content;
@@ -11,23 +12,26 @@ class ContentCard extends StatelessWidget {
     required this.index,
   });
   
-  String _formatDateTime(int timestamp) {
-    try {
-      final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-      return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return 'Неизвестная дата';
+  String _formatDateTime(int? dt, String? dtTxt) {
+    if (dtTxt != null) {
+      try {
+        final date = DateTime.parse(dtTxt);
+        return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year} ${date.hour.toString().padLeft(2, '0')}:00';
+      } catch (e) {
+        return dtTxt;
+      }
     }
-  }
-
-  String _formatDateFromString(String? dtTxt) {
-    if (dtTxt == null) return '';
-    try {
-      final date = DateTime.parse(dtTxt);
-      return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year} ${date.hour.toString().padLeft(2, '0')}:00';
-    } catch (e) {
-      return dtTxt;
+    
+    if (dt != null) {
+      try {
+        final date = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
+        return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      } catch (e) {
+        return 'Неизвестная дата';
+      }
     }
+    
+    return 'Дата неизвестна';
   }
 
   String _getTemperature(double? temp) {
@@ -49,9 +53,13 @@ class ContentCard extends StatelessWidget {
     return Colors.deepPurple;
   }
 
-  String _getWeatherDescription(List<Weather>? weather) {
+  String _getWeatherDescription(List<dynamic>? weather) {
     if (weather == null || weather.isEmpty) return '';
-    return weather.first.description ?? '';
+    try {
+      return (weather.first as Map)['description'] ?? '';
+    } catch (e) {
+      return '';
+    }
   }
 
   @override
@@ -68,7 +76,18 @@ class ContentCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: InkWell(
-        //onTap: () => context.push('/content/${content.id}'),
+        onTap: () {
+          // Навигация на экран детализации
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TemperatureDetailScreen(
+                content: content,
+                index: index,
+              ),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -83,13 +102,14 @@ class ContentCard extends StatelessWidget {
                   child: Container(
                     height: imageSize,
                     width: imageSize,
-                    color: Colors.grey[200],
+                    color: _getTempColor(temp).withOpacity(0.2),
                     child: Center(
                       child: Text(
                         _getTemperature(temp),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: _getTempColor(temp),
                         ),
                       ),
                     ),
@@ -137,11 +157,7 @@ class ContentCard extends StatelessWidget {
                         ),
                       Expanded(
                         child: Text(
-                          temperatureData?.dtTxt != null 
-                          ? _formatDateFromString(temperatureData!.dtTxt)
-                          : (temperatureData?.dt != null 
-                              ? _formatDateTime(temperatureData!.dt!)
-                              : 'Дата неизвестна'),
+                          _formatDateTime(temperatureData?.dt, temperatureData?.dtTxt),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -150,6 +166,7 @@ class ContentCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const Icon(Icons.chevron_right),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:cool_app/app/widgets/temperature_content.dart';
 import 'package:flutter/material.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -18,13 +19,17 @@ final router = GoRouter(
         child: const HomeScreen(),
       ),
     ),
-    // для следующей лабораторной работы
-    // GoRoute(
-    //   path: '/content/:id',
-    //   pageBuilder: (_, state) => MaterialPage(
-    //     key: state.pageKey,
-    //     child: ContentScreen(contentId: state.pathParameters['id']!),
-    //   ),
-    // ),
+    GoRoute(
+      path: '/detail/:index',
+      name: 'detail',
+      builder: (context, state) {
+        final index = int.parse(state.pathParameters['index'] ?? '0');
+        final content = state.extra as TemperatureContent;
+        return TemperatureDetailScreen(
+          content: content,
+          index: index,
+        );
+      },
+    ),
   ],
 );
